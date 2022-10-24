@@ -1,104 +1,103 @@
-import React, { useState } from 'react';
-import useDocTitle from '../hooks/useDocTitle';
-import useActive from '../hooks/useActive';
-import productsData from '../data/productsData';
-import FilterBar from '../components/common/FilterBar';
-import ProductCard from '../components/product/ProductCard';
-import Services from '../components/common/Services';
-
+import React, { useState } from "react";
+import useDocTitle from "../hooks/useDocTitle";
+import useActive from "../hooks/useActive";
+import FilterBar from "../components/common/FilterBar";
+import ProductCard from "../components/product/ProductCard";
+import Services from "../components/common/Services";
+import { useSelector } from "react-redux";
 
 const AllProducts = () => {
+  useDocTitle("All Products");
+  const productsData = useSelector((state) => state.data.products);
+  const { active, handleActive, activeClass } = useActive(null);
+  const [products, setProducts] = useState(productsData);
 
-    useDocTitle('All Products');
-    const { active, handleActive, activeClass } = useActive(null);
-    const [products, setProducts] = useState(productsData);
+  // handling Sort-menu
+  const handleSorting = (itemValue) => {
+    let updatedProducts = null;
 
+    switch (itemValue) {
+      case "Latest":
+        updatedProducts = productsData.slice(0, 6).map((item) => item);
+        break;
 
-    // handling Sort-menu
-    const handleSorting = (itemValue) => {
-        let updatedProducts = null;
+      case "Featured":
+        updatedProducts = productsData.filter(
+          (item) => item.tag === "featured-product"
+        );
+        break;
 
-        switch (itemValue) {
-            case 'Latest':
-                updatedProducts = productsData.slice(0, 6).map(item => item);
-                break;
+      case "Top Rated":
+        updatedProducts = productsData.filter((item) => item.rateCount > 4);
+        break;
 
-            case 'Featured':
-                updatedProducts = productsData.filter(item => item.tag === 'featured-product');
-                break;
+      case "Price(Lowest First)":
+        updatedProducts = [...productsData].sort(
+          (a, b) => a.finalPrice - b.finalPrice
+        );
+        break;
 
-            case 'Top Rated':
-                updatedProducts = productsData.filter(item => item.rateCount > 4);
-                break;
+      case "Price(Highest First)":
+        updatedProducts = [...productsData].sort(
+          (a, b) => b.finalPrice - a.finalPrice
+        );
+        break;
 
-            case 'Price(Lowest First)':
-                updatedProducts = [...productsData].sort((a, b) => a.finalPrice - b.finalPrice);
-                break;
+      default:
+        throw new Error("Wrong Option Selected");
+    }
 
-            case 'Price(Highest First)':
-                updatedProducts = [...productsData].sort((a, b) => b.finalPrice - a.finalPrice);
-                break;
+    setProducts(updatedProducts);
+    handleActive(itemValue);
+  };
 
-            default:
-                throw new Error('Wrong Option Selected');
-        }
+  // handling Filter-menu
+  const handleFiltering = (e) => {
+    const { checked, value } = e.target;
 
-        setProducts(updatedProducts);
-        handleActive(itemValue);
-    };
+    let updatedProducts = null;
 
-    // handling Filter-menu
-    const handleFiltering = (e) => {
-        const { checked, value } = e.target;
+    if (checked) {
+      updatedProducts = productsData.filter(
+        (item) => item.brand.toLowerCase() === value.toLowerCase()
+      );
+      console.log(updatedProducts);
+    } else {
+      updatedProducts = productsData.filter((item) => item.brand !== value);
+    }
 
-        let updatedProducts = null;
+    setProducts(updatedProducts);
+  };
 
-        if (checked) {
-            updatedProducts = productsData.filter(item => item.brand.toLowerCase() === value.toLowerCase());
-            console.log(updatedProducts);
-        } else {
-            updatedProducts = productsData.filter(item => item.brand !== value);
-        }
+  // handling Clear-filters
+  const handleClearFilters = () => {
+    setProducts(productsData);
+    handleActive(null);
+  };
 
-        setProducts(updatedProducts);
+  return (
+    <>
+      <section id="all_products" className="section">
+        <FilterBar
+          active={active}
+          activeClass={activeClass}
+          handleSorting={handleSorting}
+          handleFiltering={handleFiltering}
+          handleClearFilters={handleClearFilters}
+        />
 
-    };
+        <div className="container">
+          <div className="wrapper products_wrapper">
+            {products.map((item) => (
+              <ProductCard key={item.id} {...item} />
+            ))}
+          </div>
+        </div>
+      </section>
 
-    // handling Clear-filters
-    const handleClearFilters = () => {
-        setProducts(productsData);
-        handleActive(null);
-    };
-
-
-    return (
-        <>
-            <section id="all_products" className="section">
-                <FilterBar
-                    active={active}
-                    activeClass={activeClass}
-                    handleSorting={handleSorting}
-                    handleFiltering={handleFiltering}
-                    handleClearFilters={handleClearFilters}
-                />
-
-                <div className="container">
-                    <div className="wrapper products_wrapper">
-                        {
-                            products.map(item => (
-                                <ProductCard
-                                    key={item.id}
-                                    {...item}
-                                />
-                            ))
-                        }
-                    </div>
-                </div>
-            </section>
-
-            <Services />
-        </>
-    );
+      <Services />
+    </>
+  );
 };
 
 export default AllProducts;

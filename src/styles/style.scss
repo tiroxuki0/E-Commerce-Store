@@ -4,7 +4,6 @@
 @import "./partials/base/reset";
 @import "./partials/base/common";
 
-
 // Components
 @import "./partials/components/preloader";
 @import "./partials/components/header";
@@ -14,7 +13,6 @@
 @import "./partials/components/searchbar";
 @import "./partials/components/filterbar";
 @import "./partials/components/quantity_box";
-
 
 // Pages
 @import "./partials/pages/hero";
@@ -26,3 +24,35 @@
 @import "./partials/pages/related";
 @import "./partials/pages/services";
 @import "./partials/pages/error_page";
+
+.loading_wrapper {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100vh;
+  width: 100vw;
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
+  .loading {
+    width: 4em;
+    height: 4.5em;
+    border: 5px solid transparent;
+    border-top-color: var(--main-color-2);
+    border-bottom-color: var(--main-color-2);
+    border-radius: 50%;
+    animation: spin-stretch 2s ease infinite;
+
+    @keyframes spin-stretch {
+      50% {
+        transform: rotate(360deg) scale(0.4, 0.33);
+        border-width: 10px;
+      }
+      100% {
+        transform: rotate(720deg) scale(1, 1);
+        border-width: 5px;
+      }
+    }
+  }
+}
